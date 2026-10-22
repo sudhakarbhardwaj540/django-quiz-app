@@ -1,0 +1,21 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Local database
+db.sqlite3
+
+# macOS and VS Code
+.DS_Store
+.vscode/

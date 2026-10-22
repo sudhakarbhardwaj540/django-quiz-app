@@ -1,0 +1,102 @@
+
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="card shadow-sm p-4">
+    <h4>Question {{ question_number }} of {{ total_questions }}</h4>
+
+    <p class="lead">{{ question.text }}</p>
+
+    <form method="post" id="quiz-form">
+        {% csrf_token %}
+
+        {% for option in options %}
+        <div class="form-check">
+            <input
+                class="form-check-input"
+                type="radio"
+                name="option"
+                id="option{{ option.id }}"
+                value="{{ option.id }}"
+            >
+            <label
+                class="form-check-label"
+                for="option{{ option.id }}"
+            >
+                {{ option.text }}
+            </label>
+        </div>
+        {% endfor %}
+
+        <hr>
+
+        <button
+            type="submit"
+            class="btn btn-primary mt-3"
+            id="submit-button"
+        >
+            Submit Answer
+        </button>
+    </form>
+
+    <div class="mt-3">
+        <p>
+            <strong>Time Left:</strong>
+            <span id="timer">30</span> seconds
+        </p>
+    </div>
+</div>
+
+<script>
+(function () {
+    const quizForm = document.getElementById("quiz-form");
+    const timer = document.getElementById("timer");
+    const submitButton = document.getElementById("submit-button");
+
+    if (!quizForm || !timer || !submitButton) {
+        return;
+    }
+
+    let timeLeft = 30;
+    let submitted = false;
+
+    const countdown = setInterval(function () {
+        timeLeft = Math.max(0, timeLeft - 1);
+        timer.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            submitQuiz();
+        }
+    }, 1000);
+
+    function submitQuiz() {
+        if (submitted) {
+            return;
+        }
+
+        submitted = true;
+        clearInterval(countdown);
+        submitButton.disabled = true;
+        submitButton.textContent = "Submitting...";
+
+        // No answer selected means the question is skipped.
+        quizForm.requestSubmit();
+    }
+
+    quizForm.addEventListener("submit", function (event) {
+        if (submitted && !event.isTrusted) {
+            event.preventDefault();
+            return;
+        }
+
+        if (!submitted) {
+            submitted = true;
+            clearInterval(countdown);
+            submitButton.disabled = true;
+            submitButton.textContent = "Submitting...";
+        }
+    });
+})();
+</script>
+{% endblock %}

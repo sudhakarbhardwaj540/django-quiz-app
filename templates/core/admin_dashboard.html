@@ -1,0 +1,36 @@
+
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome to the Quiz App administration dashboard.</p>
+
+    <div class="row mt-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Quizzes</h5>
+                <h3>{{ total_quizzes|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Questions</h5>
+                <h3>{{ total_questions|default:0 }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Attempts</h5>
+                <h3>{{ total_attempts|default:0 }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'home' %}" class="btn btn-primary mt-3">
+        Go to Home
+    </a>
+</div>
+{% endblock %}
