@@ -1,48 +1,143 @@
+```django
 {% extends 'core/base.html' %}
+{% load static %}
+{% load tz %}
+
+{% block page_container_class %}attempts-main-container{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="mb-4">My Quiz Attempts</h2>
+<div class="attempts-dashboard">
 
-    {% if attempts %}
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>Quiz</th>
-                    <th>Score</th>
-                    <th>Total Questions</th>
-                    <th>Percentage</th>
-                    <th>Completed At</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for attempt in attempts %}
-                <tr>
-                    <td>{{ attempt.quiz.title }}</td>
-                    <td>{{ attempt.score }}</td>
-                    <td>{{ attempt.total }}</td>
-                    <td>
-                        {% if attempt.total %}
-                            {% widthratio attempt.score attempt.total 100 %}%
-                        {% else %}
-                            0%
-                        {% endif %}
-                    </td>
-                    <td>{{ attempt.completed_at|date:"d M Y, h:i A" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Page Heading -->
+    <div class="attempts-heading">
+        <div>
+            <span class="attempts-eyebrow">YOUR LEARNING JOURNEY</span>
+            <h1>My Quiz Attempts</h1>
+            <p>Track your scores, review your progress, and keep improving.</p>
+        </div>
+        <div class="attempts-heading-icon">🏆</div>
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        You haven't completed any quizzes yet.
-    </div>
-    {% endif %}
 
-    <a href="{% url 'home' %}" class="btn btn-primary">
-        Go to Home
-    </a>
+    <!-- Summary Cards -->
+    <div class="attempts-stats">
+        <div class="attempt-stat-card">
+            <div class="attempt-stat-icon purple">📚</div>
+            <div>
+                <span class="attempt-stat-number">{{ attempts|length }}</span>
+                <span class="attempt-stat-label">Total Attempts</span>
+            </div>
+        </div>
+
+        <a href="{% url 'home' %}"
+           class="attempt-stat-card attempt-practice-card">
+            <div class="attempt-stat-icon blue">🎯</div>
+            <div>
+                <span class="attempt-stat-title">Practice Again</span>
+                <span class="attempt-stat-label">Take another quiz</span>
+            </div>
+            <span class="attempt-stat-arrow">→</span>
+        </a>
+    </div>
+
+    <!-- Attempt History -->
+    <section class="attempts-table-card">
+        <div class="attempts-table-heading">
+            <div>
+                <h2>Attempt History</h2>
+                <p>Your recent quiz results</p>
+            </div>
+            <span class="attempts-count">
+                {{ attempts|length }} attempts
+            </span>
+        </div>
+
+        {% if attempts %}
+        <div class="attempts-table-scroll">
+            <table class="attempts-modern-table">
+                <thead>
+                    <tr>
+                        <th>Quiz</th>
+                        <th>Score</th>
+                        <th>Total Questions</th>
+                        <th>Performance</th>
+                        <th>Completed At</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for attempt in attempts %}
+                    <tr>
+                        <!-- Quiz Name -->
+                        <td>
+                            <div class="attempt-quiz-cell">
+                                <span class="attempt-quiz-icon">📝</span>
+                                <span>{{ attempt.quiz.title }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Score -->
+                        <td>
+                            <span class="attempt-score">
+                                {{ attempt.score }}
+                            </span>
+                        </td>
+
+                        <!-- Total Questions -->
+                        <td>
+                            {{ attempt.total }}
+                        </td>
+
+                        <!-- Performance -->
+                        <td>
+                            {% if attempt.total > 0 %}
+                                {% widthratio attempt.score attempt.total 100 as percentage %}
+
+                                <div class="attempt-performance">
+                                    <div class="attempt-progress">
+                                        <div
+                                            class="attempt-progress-fill"
+                                            style="width: {{ percentage }}%;">
+                                        </div>
+                                    </div>
+                                    <span>{{ percentage }}%</span>
+                                </div>
+                            {% else %}
+                                <span>—</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Completed At: Indian local time -->
+                        <td class="attempt-date">
+                            {% if attempt.completed_at %}
+                                {{ attempt.completed_at|localtime|date:"d M Y, h:i A" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% else %}
+        <div class="attempts-empty">
+            <div class="attempts-empty-icon">📋</div>
+            <h3>No quiz attempts yet</h3>
+            <p>Your completed quizzes will appear here.</p>
+            <a href="{% url 'home' %}" class="attempts-primary-button">
+                Explore Quizzes →
+            </a>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Bottom Note -->
+    <div class="attempts-bottom-note">
+        <span>💡</span>
+        Every attempt helps you learn something new. Keep going!
+    </div>
+
 </div>
 {% endblock %}
+```

@@ -289,15 +289,16 @@ def quiz_result(request):
     request.session.modified = True
 
     return render(
-        request,
-        "core/quiz_result.html",
-        {
-            "attempt": attempt,
-            "score": score,
-            "total_questions": total_questions,
-            "quiz": quiz,
-        },
-    )
+    request,
+    "core/quiz_result.html",
+    {
+        "attempt": attempt,
+        "score": score,
+        "total_questions": total_questions,
+        "quiz": quiz,
+        "incorrect_answers": max(0, total_questions - score),
+    },
+)
 
 
 # -----------------------------
