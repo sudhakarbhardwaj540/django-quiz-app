@@ -1,26 +1,193 @@
+
 {% extends 'core/base.html' %}
+{% load static %}
+
 {% block content %}
+<div class="quiz-home">
 
-<div class="jumbotron text-center bg-light shadow-sm">
-    <h1 class="display-4">Welcome to the Quiz App</h1>
-    <p class="lead">Test your knowledge by choosing a quiz category.</p>
-</div>
+    <!-- Hero Banner -->
+    <section class="quiz-hero">
+        <div class="hero-content">
+            <span class="hero-eyebrow">YOUR LEARNING SPACE</span>
+            <h1>Learn. Practice.<br><span>Level Up.</span></h1>
+            <p>Sharpen your skills one quiz at a time.</p>
 
-<div class="row">
-    {% for category in categories %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ category.name }}</h5>
-                    <a href="{% url 'category_quizzes' category.id %}" class="btn btn-primary">View Quizzes</a>
+            <div class="hero-actions">
+                <div class="quiz-search">
+                    <span aria-hidden="true">⌕</span>
+                    <input
+                        type="search"
+                        id="quizSearch"
+                        placeholder="Find a quiz or topic..."
+                        aria-label="Search quiz categories"
+                    >
                 </div>
+                <a href="#quiz-categories" class="hero-button">
+                    Explore quizzes <span>→</span>
+                </a>
             </div>
         </div>
-    {% empty %}
-        <div class="col-12 text-center">
-            <p>No categories available.</p>
+
+        <div class="hero-art" aria-hidden="true">
+            <div class="art-orbit orbit-one"></div>
+            <div class="art-orbit orbit-two"></div>
+            <span class="art-star star-one">✦</span>
+            <span class="art-star star-two">✦</span>
+            <span class="art-bulb">💡</span>
+            <div class="art-books">
+                <div class="book book-blue"></div>
+                <div class="book book-orange"></div>
+                <div class="book book-white"></div>
+            </div>
+            <div class="art-laptop">
+                <div class="laptop-screen">
+                    <div class="screen-title">YOUR NEXT CHALLENGE</div>
+                    <div class="screen-line"><span>✓</span><i></i></div>
+                    <div class="screen-line"><span>✓</span><i></i></div>
+                    <div class="screen-line"><span>✓</span><i></i></div>
+                </div>
+                <div class="laptop-base"></div>
+            </div>
+            <div class="art-cap">🎓</div>
         </div>
-    {% endfor %}
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="quiz-stats" aria-label="Quiz dashboard overview">
+        <div class="stat-card stat-blue">
+            <div class="stat-icon">▦</div>
+            <div>
+                <h2>{{ categories|length }}</h2>
+                <p>Quiz Categories</p>
+            </div>
+        </div>
+
+        <a href="{% url 'my_attempts' %}" class="stat-card stat-purple">
+            <div class="stat-icon">?</div>
+            <div>
+                <h2>My Results</h2>
+                <p>Review your quiz attempts</p>
+            </div>
+            <span class="stat-arrow">↗</span>
+        </a>
+
+        <a href="#quiz-categories" class="stat-card stat-green">
+            <div class="stat-icon">↗</div>
+            <div>
+                <h2>Keep Growing</h2>
+                <p>Learn · Practice · Achieve</p>
+            </div>
+            <span class="stat-arrow">→</span>
+        </a>
+    </section>
+
+    <!-- Category Heading -->
+    <section class="category-section" id="quiz-categories">
+        <div class="section-heading">
+            <div class="heading-accent"></div>
+            <div>
+                <h2>Explore Quiz Categories</h2>
+                <p>Choose a subject and start your next challenge.</p>
+            </div>
+        </div>
+
+        <div class="category-grid" id="categoryGrid">
+            {% for category in categories %}
+            <article class="quiz-category-card
+                {% cycle 'category-blue' 'category-green' 'category-orange' 'category-purple' %}"
+                data-category="{{ category.name|lower }}">
+
+                <div class="category-top">
+                    <div class="category-icon">
+                        {% if 'python' in category.name|lower %}
+                            <span>🐍</span>
+                        {% elif 'dbms' in category.name|lower or 'database' in category.name|lower %}
+                            <span>▤</span>
+                        {% elif 'java' in category.name|lower %}
+                            <span>☕</span>
+                        {% elif 'ds' in category.name|lower or 'data structure' in category.name|lower %}
+                            <span>🔗</span>
+                        {% else %}
+                            <span>🧠</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="category-title-wrap">
+                        <h3>
+                            {% if category.name|lower == 'ds' %}
+                                Data Structures
+                            {% else %}
+                                {{ category.name }}
+                            {% endif %}
+                        </h3>
+                        <p>
+                            {% if 'python' in category.name|lower %}
+                                Build confidence with Python fundamentals.
+                            {% elif 'dbms' in category.name|lower or 'database' in category.name|lower %}
+                                Master database concepts and SQL.
+                            {% elif 'java' in category.name|lower %}
+                                Practice Java syntax and OOP concepts.
+                            {% elif 'ds' in category.name|lower or 'data structure' in category.name|lower %}
+                                Strengthen algorithms and data structures.
+                            {% else %}
+                                Explore questions and improve your skills.
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="category-card-bottom">
+                    <span class="practice-label">
+                        <span aria-hidden="true">▶</span> Practice quiz
+                    </span>
+                    <a href="{% url 'category_quizzes' category.id %}"
+                       class="start-quiz-button">
+                        Start quiz <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+            {% empty %}
+            <div class="empty-categories">
+                <div>📚</div>
+                <h3>No categories available yet</h3>
+                <p>Please check back after quizzes have been added.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <p id="noSearchResults" class="no-search-results" hidden>
+            No matching categories found. Try another search.
+        </p>
+    </section>
+
+    <div class="quiz-home-bottom">
+        <span>✨</span>
+        <p>Every question is a chance to learn something new.</p>
+    </div>
+
 </div>
 
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const search = document.getElementById("quizSearch");
+    const cards = document.querySelectorAll(".quiz-category-card");
+    const emptyMessage = document.getElementById("noSearchResults");
+
+    if (!search) return;
+
+    search.addEventListener("input", function () {
+        const query = this.value.trim().toLowerCase();
+        let visibleCount = 0;
+
+        cards.forEach(function (card) {
+            const matches = card.dataset.category.includes(query);
+            card.hidden = !matches;
+            if (matches) visibleCount++;
+        });
+
+        emptyMessage.hidden = visibleCount !== 0;
+    });
+});
+</script>
 {% endblock %}

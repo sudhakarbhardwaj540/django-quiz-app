@@ -2,48 +2,130 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="card shadow-sm p-4">
-    <h4>Question {{ question_number }} of {{ total_questions }}</h4>
+<div class="quiz-attempt-page">
 
-    <p class="lead">{{ question.text }}</p>
+    <!-- Quiz hero -->
+    <section class="attempt-hero">
+        <div class="attempt-hero-content">
+            <span class="attempt-eyebrow">YOUR LEARNING CHALLENGE</span>
+            <h1>Think. Choose. <span>Succeed.</span></h1>
+            <p>Take your time, trust your knowledge, and give it your best.</p>
 
-    <form method="post" id="quiz-form">
-        {% csrf_token %}
-
-        {% for option in options %}
-        <div class="form-check">
-            <input
-                class="form-check-input"
-                type="radio"
-                name="option"
-                id="option{{ option.id }}"
-                value="{{ option.id }}"
-            >
-            <label
-                class="form-check-label"
-                for="option{{ option.id }}"
-            >
-                {{ option.text }}
-            </label>
+            <div class="attempt-hero-pills">
+                <span>✓ Test your knowledge</span>
+                <span>✓ Learn something new</span>
+            </div>
         </div>
-        {% endfor %}
 
-        <hr>
+        <div class="attempt-hero-art" aria-hidden="true">
+            <div class="attempt-art-ring">
+                <div class="attempt-art-icon">🧠</div>
+            </div>
+            <span class="attempt-art-star star-one">✦</span>
+            <span class="attempt-art-star star-two">✦</span>
+            <span class="attempt-art-check">✓</span>
+        </div>
+    </section>
 
-        <button
-            type="submit"
-            class="btn btn-primary mt-3"
-            id="submit-button"
-        >
-            Submit Answer
-        </button>
-    </form>
+    <!-- Progress and timer -->
+    <section class="attempt-status-grid">
+        <div class="attempt-status-card">
+            <div class="attempt-status-icon progress-icon">📚</div>
+            <div class="attempt-status-info">
+                <span class="attempt-status-label">YOUR PROGRESS</span>
+                <strong>Question {{ question_number }} of {{ total_questions }}</strong>
+                <div
+                    class="attempt-progress-track"
+                    role="progressbar"
+                    aria-label="Quiz progress"
+                    aria-valuemin="0"
+                    aria-valuemax="{{ total_questions }}"
+                    aria-valuenow="{{ question_number }}"
+                >
+                    <div
+                        class="attempt-progress-fill"
+                        style="width: {% widthratio question_number total_questions 100 %}%"
+                    ></div>
+                </div>
+            </div>
+        </div>
 
-    <div class="mt-3">
-        <p>
-            <strong>Time Left:</strong>
-            <span id="timer">30</span> seconds
+        <div class="attempt-status-card timer-status-card" id="timer-card">
+            <div class="attempt-status-icon timer-icon">⏱️</div>
+            <div class="attempt-status-info">
+                <span class="attempt-status-label">TIME REMAINING</span>
+                <strong><span id="timer" role="timer" aria-live="off">30</span> seconds</strong>
+                <span class="attempt-timer-hint" id="timer-hint">Stay focused. You've got this!</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Question card -->
+    <section class="attempt-question-card">
+        <div class="attempt-question-topline">
+            <span class="attempt-question-badge">
+                QUESTION {{ question_number }}
+            </span>
+            <span class="attempt-single-choice">◉ Select one answer</span>
+        </div>
+
+        <h2 class="attempt-question-title">{{ question.text }}</h2>
+        <p class="attempt-question-subtitle">
+            Choose the option you believe is correct.
         </p>
+
+        <form method="post" id="quiz-form">
+            {% csrf_token %}
+
+            <div class="attempt-options">
+                {% for option in options %}
+                <div class="attempt-option">
+                    <input
+                        class="attempt-option-input"
+                        type="radio"
+                        name="option"
+                        id="option{{ option.id }}"
+                        value="{{ option.id }}"
+                    >
+
+                    <label
+                        class="attempt-option-label"
+                        for="option{{ option.id }}"
+                    >
+                        <span class="attempt-option-letter">
+                            {{ forloop.counter|add:"64"|stringformat:"c" }}
+                        </span>
+                        <span class="attempt-option-text">{{ option.text }}</span>
+                        <span class="attempt-option-check" aria-hidden="true">✓</span>
+                    </label>
+                </div>
+                {% empty %}
+                <p class="attempt-no-options">
+                    No answer options are available for this question.
+                </p>
+                {% endfor %}
+            </div>
+
+            <div class="attempt-form-footer">
+                <span class="attempt-selection-hint" id="selection-hint">
+                    Select an answer to continue.
+                </span>
+
+                <button
+                    type="submit"
+                    class="attempt-submit-button"
+                    id="submit-button"
+                >
+                    <span id="submit-label">Submit Answer</span>
+                    <span aria-hidden="true">→</span>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <div class="attempt-encouragement">
+        <span aria-hidden="true">✨</span>
+        Every question is an opportunity to learn something new.
     </div>
 </div>
 
@@ -51,21 +133,44 @@
 (function () {
     const quizForm = document.getElementById("quiz-form");
     const timer = document.getElementById("timer");
+    const timerCard = document.getElementById("timer-card");
+    const timerHint = document.getElementById("timer-hint");
     const submitButton = document.getElementById("submit-button");
+    const submitLabel = document.getElementById("submit-label");
+    const selectionHint = document.getElementById("selection-hint");
 
-    if (!quizForm || !timer || !submitButton) {
+    if (
+        !quizForm || !timer || !timerCard ||
+        !submitButton || !submitLabel
+    ) {
         return;
     }
 
     let timeLeft = 30;
     let submitted = false;
+    let automaticSubmit = false;
 
-    const countdown = setInterval(function () {
-        timeLeft = Math.max(0, timeLeft - 1);
+    function updateTimer() {
         timer.textContent = timeLeft;
 
-        if (timeLeft <= 0) {
+        if (timeLeft <= 10) {
+            timerCard.classList.add("timer-warning");
+            timerHint.textContent = "Hurry! Time is running out.";
+        } else if (timeLeft <= 20) {
+            timerHint.textContent = "Keep going. You're doing well!";
+        }
+    }
+
+    const countdown = setInterval(function () {
+        if (submitted) {
             clearInterval(countdown);
+            return;
+        }
+
+        timeLeft = Math.max(0, timeLeft - 1);
+        updateTimer();
+
+        if (timeLeft <= 0) {
             submitQuiz();
         }
     }, 1000);
@@ -78,25 +183,29 @@
         submitted = true;
         clearInterval(countdown);
         submitButton.disabled = true;
-        submitButton.textContent = "Submitting...";
+        submitLabel.textContent = "Submitting...";
 
-        // No answer selected means the question is skipped.
+        automaticSubmit = true;
         quizForm.requestSubmit();
     }
 
-    quizForm.addEventListener("submit", function (event) {
-        if (submitted && !event.isTrusted) {
-            event.preventDefault();
-            return;
-        }
+    
+quizForm.addEventListener("submit", function (event) {
+    if (submitted && !automaticSubmit) {
+        event.preventDefault();
+        return;
+    }
 
-        if (!submitted) {
-            submitted = true;
-            clearInterval(countdown);
-            submitButton.disabled = true;
-            submitButton.textContent = "Submitting...";
-        }
-    });
+    if (!submitted) {
+        submitted = true;
+        clearInterval(countdown);
+        submitButton.disabled = true;
+        submitLabel.textContent = "Submitting...";
+    }
+
+    automaticSubmit = false;
+});
+
 })();
 </script>
 {% endblock %}

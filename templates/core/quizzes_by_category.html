@@ -1,26 +1,130 @@
+```html
 {% extends 'core/base.html' %}
+
 {% block content %}
+<div class="quiz-list-page">
 
-<h2 class="mb-4">Available Quizzes</h2>
+    <!-- Page heading -->
+    <section class="quiz-list-hero">
+        <div class="quiz-list-hero-content">
+            <span class="quiz-list-eyebrow">YOUR NEXT CHALLENGE</span>
+            <h1>Available <span>Quizzes</span> 🎯</h1>
+            <p>Choose a quiz, test your knowledge, and take one more step toward mastering your skills.</p>
 
-<div class="row">
-    {% for quiz in quizzes %}
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">{{ quiz.title }}</h5>
-                    {% if user.is_authenticated %}
-    		<a href="{% url 'start_quiz' quiz.id %}" class="btn btn-success">Start Quiz</a>
-     {% else %}
-    		<button class="btn btn-secondary" disabled>Login to Start</button>
-   	<small class="text-danger d-block mt-2">You must <a href="{% url 'login' %}">login</a> to attempt quizzes.</small>
-    {% endif %}
-                </div>
+            <div class="quiz-list-highlights">
+                <span>✓ Learn at your pace</span>
+                <span>✓ Test your knowledge</span>
+                <span>✓ Track your progress</span>
             </div>
         </div>
-    {% empty %}
-        <p>No quizzes found for this category.</p>
-    {% endfor %}
-</div>
 
+        <div class="quiz-list-hero-art" aria-hidden="true">
+            <div class="quiz-art-circle"></div>
+            <div class="quiz-art-icon">🧠</div>
+            <div class="quiz-art-check">✓</div>
+            <div class="quiz-art-star">✦</div>
+        </div>
+    </section>
+
+    <!-- Quiz overview -->
+    <section class="quiz-list-overview">
+        <div class="quiz-overview-card">
+            <div class="quiz-overview-icon quiz-overview-blue">📚</div>
+            <div>
+                <strong>{{ quizzes|length }}</strong>
+                <span>Available quizzes</span>
+            </div>
+        </div>
+
+        <a href="{% url 'my_attempts' %}" class="quiz-overview-card quiz-overview-link">
+            <div class="quiz-overview-icon quiz-overview-purple">🏆</div>
+            <div>
+                <strong>My Attempts</strong>
+                <span>Review your quiz results</span>
+            </div>
+            <span class="quiz-overview-arrow">↗</span>
+        </a>
+    </section>
+
+    <!-- Quiz cards -->
+    <section class="quiz-list-section">
+        <div class="quiz-list-section-heading">
+            <div>
+                <h2>Choose Your Quiz</h2>
+                <p>Find a challenge and get started.</p>
+            </div>
+            <span class="quiz-list-count">
+                {{ quizzes|length }} quiz{{ quizzes|length|pluralize }}
+            </span>
+        </div>
+
+        <div class="quiz-list-grid">
+            {% for quiz in quizzes %}
+                <article class="quiz-item-card">
+
+                    <div class="quiz-item-top">
+                        <div class="quiz-item-icon" aria-hidden="true">
+                            {% if forloop.counter0|divisibleby:4 %}
+                                🐍
+                            {% elif forloop.counter0|divisibleby:3 %}
+                                💻
+                            {% elif forloop.counter0|divisibleby:2 %}
+                                🧩
+                            {% else %}
+                                🎯
+                            {% endif %}
+                        </div>
+                        <span class="quiz-item-number">
+                            QUIZ {{ forloop.counter|stringformat:"02d" }}
+                        </span>
+                    </div>
+
+                    <h3>{{ quiz.title }}</h3>
+                    <p class="quiz-item-description">
+                        Ready to challenge yourself? Explore the questions and improve your knowledge.
+                    </p>
+
+                    <div class="quiz-item-divider"></div>
+
+                    <div class="quiz-item-footer">
+                        <span class="quiz-item-label">
+                            <span class="quiz-status-dot"></span>
+                            Knowledge challenge
+                        </span>
+
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'start_quiz' quiz.id %}"
+                               class="quiz-start-button">
+                                Start Quiz <span aria-hidden="true">→</span>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}"
+                               class="quiz-start-button">
+                                Login to Start <span aria-hidden="true">→</span>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                </article>
+            {% empty %}
+                <div class="quiz-list-empty">
+                    <div class="quiz-empty-icon">📘</div>
+                    <h3>No quizzes available yet</h3>
+                    <p>New challenges will appear here when quizzes are added.</p>
+                    <a href="{% url 'home' %}" class="quiz-empty-button">
+                        Back to Dashboard →
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Closing message -->
+    <div class="quiz-list-footer-message">
+        <span>✨</span>
+        <p>Every question is an opportunity to learn something new.</p>
+    </div>
+
+</div>
 {% endblock %}
+```

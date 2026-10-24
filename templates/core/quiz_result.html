@@ -1,10 +1,122 @@
-{% extends 'core/base.html' %}
+ {% extends 'core/base.html' %}
+
 {% block content %}
+{% load static %}
 
-<div class="text-center mt-5">
-    <h2>Quiz Completed!</h2>
-    <p class="lead">You scored {{ score }} out of {{ total_questions }} on "{{ quiz.title }}"</p>
-    <a href="{% url 'home' %}" class="btn btn-primary">Go to Home</a>
+<div class="quiz-result-page">
+
+    {% with percentage=score|default:0 %}
+    <section class="result-hero">
+        <div class="result-hero-content">
+            <span class="result-eyebrow">YOUR LEARNING JOURNEY</span>
+
+            <div class="result-success-icon">✓</div>
+
+            <h1>Quiz Completed!</h1>
+
+            <p class="result-subtitle">
+                Great effort! Every question is a step toward success.
+            </p>
+
+            <div class="result-quiz-name">
+                🏆 {{ quiz.title }}
+            </div>
+        </div>
+
+        <div class="result-decoration" aria-hidden="true">
+            <span class="result-star star-one">✦</span>
+            <span class="result-star star-two">✧</span>
+            <div class="result-trophy">🏆</div>
+            <div class="result-orbit"></div>
+        </div>
+    </section>
+
+    <section class="result-main-card">
+        <div class="result-score-heading">
+            <span class="result-section-label">YOUR PERFORMANCE</span>
+            <h2>Look how far you've come!</h2>
+        </div>
+
+        <div class="result-score-layout">
+            <div class="result-score-circle"
+                 style="--score: {% widthratio score total_questions 100 %}%;">
+                <div class="result-score-inner">
+                    <span class="result-score-number">{{ score }}</span>
+                    <span class="result-score-divider">out of</span>
+                    <span class="result-score-total">{{ total_questions }}</span>
+                </div>
+            </div>
+
+            <div class="result-score-details">
+                <span class="result-performance-badge">✓ Quiz submitted</span>
+
+                <h3>Your score is
+                    {% widthratio score total_questions 100 %}%
+                </h3>
+
+                <p>
+                    You've completed <strong>{{ quiz.title }}</strong>.
+                    Keep practicing to strengthen your knowledge and
+                    improve your next result.
+                </p>
+
+                <div class="result-progress-track">
+                    <div class="result-progress-fill"
+                         style="width: {% widthratio score total_questions 100 %}%;">
+                    </div>
+                </div>
+
+                <div class="result-progress-labels">
+                    <span>Performance</span>
+                    <strong>{% widthratio score total_questions 100 %}%</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-stats-grid">
+            <div class="result-stat-card">
+                <div class="result-stat-icon result-icon-blue">✓</div>
+                <div>
+                    <span class="result-stat-value">{{ score }}</span>
+                    <span class="result-stat-label">Correct answers</span>
+                </div>
+            </div>
+
+            <div class="result-stat-card">
+                <div class="result-stat-icon result-icon-purple">?</div>
+                <div>
+                    <span class="result-stat-value">
+                       {{ incorrect_answers|default:"—" }}
+                    </span>
+                    <span class="result-stat-label">Questions to review</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-message">
+            <span class="result-message-icon">💡</span>
+            <div>
+                <strong>Keep learning, keep growing!</strong>
+                <p>Review your attempts and take another quiz when you're ready.</p>
+            </div>
+        </div>
+
+        <div class="result-actions">
+            <a href="{% url 'home' %}" class="result-button result-button-primary">
+                <span>⌂</span> Go to Dashboard <span>→</span>
+            </a>
+
+            <a href="{% url 'my_attempts' %}" class="result-button result-button-secondary">
+                View My Attempts <span>↗</span>
+            </a>
+        </div>
+    </section>
+
+    {% endwith %}
+
+    <p class="result-footer-note">
+        ✨ Every question is an opportunity to learn something new.
+    </p>
+
 </div>
-
 {% endblock %}
