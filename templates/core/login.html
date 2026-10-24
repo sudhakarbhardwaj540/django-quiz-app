@@ -1,35 +1,82 @@
+
 {% extends 'core/base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
+<div class="login-page">
+    <div class="login-card">
 
-            <h2 class="mb-4 text-center">Login</h2>
+        <div class="login-brand-icon">Q</div>
 
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-            {% endfor %}
+        <span class="login-eyebrow">WELCOME BACK</span>
+        <h1>Welcome Back!</h1>
+        <p class="login-subtitle">
+            Log in to continue your learning journey.
+        </p>
 
-            <form method="POST">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label>Username</label>
-                    <input type="text" name="username" required class="form-control">
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" required class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Login</button>
-            </form>
+        {% if messages %}
+            <div class="login-messages">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-            <div class="text-center mt-3">
-                Don't have an account? <a href="{% url 'register' %}">Register here</a>
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                Your username or password is incorrect. Please try again.
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'login' %}" class="login-form">
+            {% csrf_token %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="login-field">
+                <label for="id_username">Username</label>
+                <input
+                    type="text"
+                    name="username"
+                    id="id_username"
+                    placeholder="Enter your username"
+                    autocomplete="username"
+                    required
+                    autofocus
+                >
             </div>
 
+            <div class="login-field">
+                <label for="id_password">Password</label>
+                <input
+                    type="password"
+                    name="password"
+                    id="id_password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <button type="submit" class="login-submit-button">
+                Login <span aria-hidden="true">→</span>
+            </button>
+        </form>
+
+        <div class="login-register-link">
+            Don't have an account?
+            <a href="{% url 'register' %}">Create an account</a>
         </div>
+
+        <div class="login-security-note">
+            <span aria-hidden="true">🔒</span>
+            Your learning journey starts here.
+        </div>
+
     </div>
 </div>
 {% endblock %}
